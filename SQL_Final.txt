@@ -1,0 +1,196 @@
+create database Broadband
+use Broadband
+
+create table Admin_of_ISP
+(
+adminId int identity (1,1) primary key,
+name varchar(50) not null,
+password varchar(50) not null,
+conTactNo int not null unique check (conTactNo>1000000000)
+)
+
+insert into Admin_of_ISP (name ,password,conTactNo ) values ('Chamak','Ish1234',01795200726)
+
+select *from bill
+create table customer
+(
+customerId int identity (1,1) primary key,
+cName varchar(50) not null,
+cEmail varchar(50) not null,
+cAdress varchar(50) not null,
+cPhoneNo int not null unique check (cPhoneNo>1000000000),
+packageN varchar(50)
+)
+insert into customer (cName ,cEmail  ,cAdress ,cPhoneNo,packageN ) values ('Ishfaq', 'ishfaq@yahoo.com','Nikunja-2',01912120046,'Elite')
+																,('Fabiha', 'fabiha@yahoo.com','Nikunja-1',01914120046,'Elite')
+																,('Rafat', 'rafat@yahoo.com','Khilkhet',01912120047, 'Normal')
+																,('Sami', 'Sami@yahoo.com','Uttara',01922120046,'Normal')
+
+
+
+
+(SELECT cEmail,cAdress,cName FROM customer WHERE customerId=1)UNION ALL (SELECT customerId,status, method FROM bill WHERE customerId=1)
+
+
+(SELECT problem_description,customerId FROM helpline WHERE customerId=1)UNION ALL (SELECT status, amount FROM bill WHERE customerId=1)	
+														
+
+create table bill
+(
+billId int identity (1,1) primary key,
+customerId int not null foreign key references customer(customerId),
+amount money not null check(amount >500),
+deadline date,
+method varchar(50)DEFAULT'Cash',
+status varchar(50)DEFAULT'Due'
+)
+
+insert into bill (customerId ,amount ,deadline ,method ,status ) values (1,600,'2-3-2021','bkash','paid')
+																		,(2,700,'4-3-2021','bkash','not paid')
+																		,(3,800,'2-23-2021','bkash','paid')
+																		,(4,1000,'2-21-2021','bkash','paid')
+
+Select * from helpline
+
+
+SELECT *FROM bill WHERE customerId = (SELECT problem_description FROM helpline WHERE customerId=1)
+
+
+
+select customer.cName,bill.amount,helpline.problem_status
+FROM ((bill
+ JOIN Customer ON bill.customerId = customer.customerId and bill.customerId=1)
+JOIN helpline ON bill.customerId = customer.customerId and customer.customerId=1);
+
+create table helpline
+(
+helpId int identity (1,1) primary key,
+customerId int not null foreign key references customer(customerId),
+problem_status varchar(50) not null,
+problem_description varchar(50) not null,
+)
+insert into helpline (customerId ,problem_status ,problem_description ) values (1,'not solved','download speed low')
+																			,(2,'not solved','Router setup')
+																			,(3,'solved','ping high')
+																			,(4,'not solved','upload speed low')	
+
+
+
+
+
+ SELECT customer.customerId, customer.cName, customer.cPhoneNo, helpline.problem_status,helpline.problem_description From customer LEFT JOIN helpline on customer.customerId=helpline.customerId
+
+
+
+create table employee
+(
+employeeId int identity (1,10) primary key,
+eFame varchar(50) not null,
+elastName varchar(50) not null,
+eEmail varchar(50) not null unique,
+eAdress varchar(50) not null,
+ephoneNo int not null unique check (ephoneNo>1000000000),
+working_area varchar(50) not null,
+)
+
+insert into employee (eFame ,elastName, eEmail ,eAdress ,ephoneNo ,working_area ) values ('Rabbi','Tarek','rabbi@yahoo.com','Shamoly',01912012034,'Mohammadpur')
+																			,('Sakib','Hasan','sakib@yahoo.com','Dhanmondi',01912512034,'Mohammadpur')
+																			,('Ishfaq','Rabbi','ish@yahoo.com','Gulshan',01918412034,'Mohammadpur')
+																			,('Mahi','Rahman','Mahi@yahoo.com','Banani',01912912034,'Mohammadpur')																			
+
+select *from bill			
+
+
+create table salary
+(
+employeeId int not null foreign key references employee(employeeId),
+amount int not null ,
+position varchar(50) not null,
+status varchar(50)DEFAULT'Due',
+time date 
+)
+
+
+insert into salary (employeeId ,amount , position,status,time) values (1,6000,'Senior officer','paid','2-2-2021')
+														,(11,7000,'Assistant manager','Due','2-2-2021')
+														,(21,8000,'Manager','paid','2-2-2021')
+														,(31,900,'Cleaner','paid','2-2-2021')
+
+
+
+
+
+
+			Select * from schedule
+
+create table schedule
+(
+employeeId int not null foreign key references employee(employeeId),
+working_time varchar(50) not null,
+totalTime int not null,
+
+)
+
+insert into schedule (employeeId ,working_time ,totalTime ) values (1,'10am-10pm','30')
+																		,(11,'10am-6pm','40')
+																		,(21,'10am-10pm','30')
+																		,(31,'10am-8pm','60')
+
+
+
+
+
+Select * from pakages
+
+Select * from NewUser
+
+create table pakages
+(
+pNo int identity (1,2) primary key,
+customerId int not null foreign key references customer(customerId),
+pName varchar(50) not null,
+price_Per_month int not null check (price_per_month >500),
+speed varchar(50) not null
+)
+
+insert into pakages (customerId, pName ,price_Per_month  ,speed ) values (1,'Normal',600,'5')
+															,(2,'Pro',800,'10')
+															,(3,'Elite',900,'15')
+															,(4,'Ultra',1000,'25')		
+															
+
+create table NewUser
+(
+userId int identity (1,4) primary key,
+pNo int not null foreign key references pakages(pNo),
+nName varchar(50) not null,
+contactNo int unique,
+adress varchar(50) not null,
+email varchar(50) not null,
+status varchar(50) DEFAULT'Pending',
+date date,
+)
+
+
+insert into NewUser (pNo ,nName ,contactNo ,adress ,email ,status ,date) values (5,'Rakib',01912010200,'Mohakhali','rakib@yahoo.com','waiting', '2-3-2021')
+																		,(7,'Muna',01912410200,'Banani','Muna@yahoo.com','waiting', '2-2-2021')
+																		,(3,'Maisha',01912010400,'Banani','Maisha@yahoo.com','waiting','2-20-2021')
+																		
+																																	
+	select c.customerId,c.cName , c.cEmail,c.cAdress,c.cPhoneNo ,b.billId,c.packageN,
+b.amount,h.problem_status,b.deadline,h.problem_description from customer c full join
+bill b on c.customerId=b.customerId  full join
+helpline h on h.helpId=b.billId and b.billId=47		
+
+select c.customerId,c.cName , c.cEmail,c.cAdress,c.cPhoneNo ,b.billId,c.packageN,
+b.amount,h.problem_status,b.deadline,h.problem_description from customer c inner join
+bill b on c.customerId=b.customerId  inner join
+helpline h on h.helpId=b.billId and b.billId=4
+														
+	select c.customerId,c.cName , c.cEmail,c.cAdress,c.cPhoneNo ,b.billId,c.packageN,
+b.amount,h.problem_status,b.deadline,h.problem_description from customer c inner join
+bill b on c.customerId=b.customerId  inner join
+helpline h on h.customerId=b.customerId and b.customerId=47			
+
+
+																																							
